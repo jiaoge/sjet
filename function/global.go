@@ -119,7 +119,12 @@ func putFunc(a jet.Arguments) reflect.Value {
 
 func appendFunc(a jet.Arguments) reflect.Value {
 	name := a.Get(0).Type().Name()
-	if name == "M" {
+
+	if a.Get(0).Type().Kind() == reflect.Slice {
+		m := a.Get(0).Interface().([]interface{})
+		m = append(m, a.Get(1).Interface())
+		return reflect.ValueOf(m)
+	} else if name == "M" {
 		m := a.Get(0).Interface().(bson.M)
 		if m[a.Get(1).String()] != nil {
 			val := append(m[a.Get(1).String()].([]bson.M), a.Get(2).Interface().(bson.M))
