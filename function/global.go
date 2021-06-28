@@ -10,7 +10,6 @@ import (
 	"github.com/shoppehub/sjet/engine"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 // 初始化全局函数
@@ -173,7 +172,7 @@ func dFunc(a jet.Arguments) reflect.Value {
 }
 
 func aggregateFunc(a jet.Arguments) reflect.Value {
-	p := mongo.Pipeline{}
+	var p []bson.D
 	for i := 0; i < a.NumOfArguments(); i++ {
 		p = append(p, a.Get(i).Interface().(bson.D))
 	}
