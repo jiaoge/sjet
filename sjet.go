@@ -44,6 +44,7 @@ func RenderHTMLTemplate(eng *engine.TemplateEngine, c *gin.Context) {
 	}
 
 	c.Status(200)
+	c.Header("Content-Type", "text/html; charset=utf-8")
 	err = templateContext.Template.Execute(c.Writer, *templateContext.Vars, nil)
 	if err != nil {
 		c.Writer.WriteString(err.Error())
