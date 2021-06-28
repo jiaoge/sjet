@@ -23,16 +23,18 @@ type TemplateContext struct {
 	TemplName string
 }
 
+var TemplateRoot = "pages"
+
 func (ctx *TemplateContext) Namespace() string {
 	return strings.Join([]string{ctx.Module, ctx.Page, ctx.TemplName}, "_")
 }
 
 func (ctx *TemplateContext) GetTemplateDir() string {
-	return strings.Join([]string{ctx.Module, ctx.Page}, "/")
+	return strings.Join([]string{TemplateRoot, ctx.Module, ctx.Page}, "/")
 }
 
 func (ctx *TemplateContext) FindTemplate(t *engine.TemplateEngine) error {
-	templatePath := strings.Join([]string{ctx.Module, ctx.Page, ctx.TemplName}, "/")
+	templatePath := strings.Join([]string{TemplateRoot, ctx.Module, ctx.Page, ctx.TemplName}, "/")
 	var view *jet.Template
 	var err error
 	if view, err = t.Views.GetTemplate(templatePath); err != nil {
