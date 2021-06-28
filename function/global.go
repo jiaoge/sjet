@@ -27,6 +27,8 @@ func InitGlobalFunc(t *engine.TemplateEngine) {
 	t.Views.AddGlobalFunc("put", putFunc)
 	t.Views.AddGlobalFunc("append", appendFunc)
 
+	t.Views.AddGlobalFunc("array", arrayFunc)
+
 	t.Views.AddGlobalFunc("aggregate", aggregateFunc)
 	t.Views.AddGlobalFunc("m", mFunc)
 	t.Views.AddGlobalFunc("d", dFunc)
@@ -174,6 +176,15 @@ func aggregateFunc(a jet.Arguments) reflect.Value {
 	p := mongo.Pipeline{}
 	for i := 0; i < a.NumOfArguments(); i++ {
 		p = append(p, a.Get(i).Interface().(bson.D))
+	}
+	m := reflect.ValueOf(p)
+	return m
+}
+
+func arrayFunc(a jet.Arguments) reflect.Value {
+	var p []interface{}
+	for i := 0; i < a.NumOfArguments(); i++ {
+		p = append(p, a.Get(i).Interface())
 	}
 	m := reflect.ValueOf(p)
 	return m
