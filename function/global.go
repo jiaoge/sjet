@@ -29,6 +29,8 @@ func InitGlobalFunc(t *engine.TemplateEngine) {
 	t.Views.AddGlobalFunc("array", arrayFunc)
 
 	t.Views.AddGlobalFunc("aggregate", aggregateFunc)
+	t.Views.AddGlobalFunc("pipeline", aggregateFunc)
+
 	t.Views.AddGlobalFunc("m", mFunc)
 	t.Views.AddGlobalFunc("d", dFunc)
 
