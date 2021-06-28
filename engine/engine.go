@@ -41,16 +41,20 @@ func create(isFs bool, dir string) *TemplateEngine {
 		loader = jet.NewInMemLoader()
 	}
 
+	extension := jet.WithTemplateNameExtensions([]string{".jet", ".html.jet", ".jet.html"})
+	cache := jet.WithCache(&ecache)
 	if conf.GetBool("production") {
 		views = jet.NewSet(
 			loader,
 			jet.InDevelopmentMode(),
-			jet.WithCache(&ecache),
+			cache,
+			extension,
 		)
 	} else {
 		views = jet.NewSet(
 			loader,
-			jet.WithCache(&ecache),
+			cache,
+			extension,
 		)
 	}
 
