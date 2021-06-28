@@ -70,8 +70,8 @@ func handlerTemplateFile(c *gin.Context, ctx *TemplateContext) {
 		module = "index"
 	}
 	page := c.Params.ByName("page")
-	if page == "index" {
-		page = ""
+	if page == "" {
+		page = "index"
 	}
 
 	templ := c.Params.ByName("templ")

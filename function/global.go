@@ -19,6 +19,7 @@ func InitGlobalFunc(t *engine.TemplateEngine) {
 	t.Views.AddGlobalFunc("numArray", numArrayFunc)
 	// 支持把数据转换为字符串，比如 objectId
 	t.Views.AddGlobalFunc("string", stringFunc)
+	t.Views.AddGlobalFunc("oid", oidFunc)
 
 	t.Views.AddGlobalFunc("formatUrlPath", formatUrlPathFunc)
 
@@ -33,6 +34,14 @@ func InitGlobalFunc(t *engine.TemplateEngine) {
 	t.Views.AddGlobalFunc("ceil", putFunc)
 	t.Views.AddGlobalFunc("floor", putFunc)
 
+}
+
+func oidFunc(a jet.Arguments) reflect.Value {
+	if !a.Get(0).IsValid() {
+		return reflect.ValueOf("")
+	}
+	oid, _ := primitive.ObjectIDFromHex(a.Get(0).String())
+	return reflect.ValueOf(oid)
 }
 
 func formatUrlPathFunc(a jet.Arguments) reflect.Value {
