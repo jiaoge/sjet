@@ -2,6 +2,8 @@ package context
 
 import (
 	"reflect"
+	"strconv"
+	"strings"
 
 	"github.com/CloudyKit/jet/v6"
 	"github.com/gin-gonic/gin"
@@ -14,46 +16,129 @@ type TemplateContext struct {
 	Vars    *jet.VarMap
 	Context *map[string]interface{}
 
+	Template *jet.Template
+
 	Module    string
 	Page      string
 	TemplName string
 }
 
+func (ctx *TemplateContext) Namespace() string {
+	return strings.Join([]string{ctx.Module, ctx.Page, ctx.TemplName}, "_")
+}
+
+func (ctx *TemplateContext) GetTemplateDir() string {
+	return strings.Join([]string{ctx.Module, ctx.Page}, "/")
+}
+
+func (ctx *TemplateContext) FindTemplate(t *engine.TemplateEngine) error {
+	templatePath := strings.Join([]string{ctx.Module, ctx.Page, ctx.TemplName}, "/")
+	var view *jet.Template
+	var err error
+	if view, err = t.Views.GetTemplate(templatePath); err != nil {
+		return err
+	}
+
+	ctx.Template = view
+	return nil
+}
+
+// 初始化模板
 func InitTemplateContext(t *engine.TemplateEngine, c *gin.Context) *TemplateContext {
 	vars := make(jet.VarMap)
-
 	handlerGetCtx(&vars, c)
 
 	var context map[string]interface{}
 	handlerContext(&vars, &context)
 
-	vars.Set("path", c.Request.URL.Path)
-
-	return &TemplateContext{
+	ctxData := TemplateContext{
 		Vars:    &vars,
 		Context: &context,
 	}
+	handlerTemplateFile(c, &ctxData)
+	vars.Set("namespace", ctxData.Namespace())
+
+	return &ctxData
+}
+
+// 解析模板路径 /:module/:page/:templ
+func handlerTemplateFile(c *gin.Context, ctx *TemplateContext) {
+	module := c.Params.ByName("module")
+	if module == "" {
+		module = "index"
+	}
+	page := c.Params.ByName("page")
+	if page == "index" {
+		page = ""
+	}
+
+	templ := c.Params.ByName("templ")
+	if templ == "" {
+		templ = "index"
+	}
+	ctx.Module = module
+	ctx.Page = page
+	ctx.TemplName = templ
+}
+
+func getParamInContext(key string, c *gin.Context) interface{} {
+	if val, ok := c.GetQuery(key); ok {
+		return val
+	}
+	if val, ok := c.GetPostForm(key); ok {
+		return val
+	}
+	if val, ok := c.Params.Get(key); ok {
+		return val
+	}
+	var body map[string]interface{}
+	if err := c.ShouldBindBodyWith(&body, binding.JSON); err == nil {
+		return body[key]
+	}
+	return ""
 }
 
 func handlerGetCtx(vars *jet.VarMap, c *gin.Context) {
 	vars.SetFunc("getCtx", func(a jet.Arguments) reflect.Value {
-
 		key := a.Get(0).String()
-		if val, ok := c.GetQuery(key); ok {
-			return reflect.ValueOf(val)
-		}
-		if val, ok := c.GetPostForm(key); ok {
-			return reflect.ValueOf(val)
-		}
-		if val, ok := c.Params.Get(key); ok {
-			return reflect.ValueOf(val)
-		}
-		var body map[string]interface{}
+		return reflect.ValueOf(getParamInContext(key, c))
+	})
 
-		if err := c.ShouldBindBodyWith(&body, binding.JSON); err != nil {
-			return reflect.ValueOf("")
+	vars.SetFunc("getCtxForInt", func(a jet.Arguments) reflect.Value {
+		key := a.Get(0).String()
+
+		val := getParamInContext(key, c)
+
+		if val == "" {
+			return reflect.ValueOf(0)
 		}
-		return reflect.ValueOf(body[key])
+		val, _ = strconv.ParseInt(c.Query("curPage"), 10, 64)
+		return reflect.ValueOf(val)
+	})
+
+	vars.SetFunc("getCtxForFloat", func(a jet.Arguments) reflect.Value {
+		key := a.Get(0).String()
+
+		val := getParamInContext(key, c)
+
+		if val == "" {
+			val = float64(0)
+			return reflect.ValueOf(val)
+		}
+		val, _ = strconv.ParseFloat(c.Query("curPage"), 64)
+		return reflect.ValueOf(val)
+	})
+
+	vars.SetFunc("getCtxForBool", func(a jet.Arguments) reflect.Value {
+		key := a.Get(0).String()
+
+		val := getParamInContext(key, c)
+
+		if val == "" {
+			return reflect.ValueOf(false)
+		}
+		val, _ = strconv.ParseBool(val.(string))
+		return reflect.ValueOf(val)
 	})
 
 	vars.SetFunc("getURL", func(a jet.Arguments) reflect.Value {
