@@ -43,6 +43,13 @@ func RenderHTMLTemplate(eng *engine.TemplateEngine, c *gin.Context) {
 		templateContext.Vars.SetFunc(key, v(c))
 	}
 
+	c.Status(200)
+	err = templateContext.Template.Execute(c.Writer, *templateContext.Vars, nil)
+	if err != nil {
+		c.Writer.WriteString(err.Error())
+		return
+	}
+
 }
 
 type CustomFunc func(c *gin.Context) jet.Func
