@@ -3,6 +3,7 @@ package function
 import (
 	"fmt"
 	"math"
+	"net/url"
 	"reflect"
 
 	"github.com/CloudyKit/jet/v6"
@@ -19,6 +20,8 @@ func InitGlobalFunc(t *engine.TemplateEngine) {
 	// 支持把数据转换为字符串，比如 objectId
 	t.Views.AddGlobalFunc("string", stringFunc)
 
+	t.Views.AddGlobalFunc("formatUrlPath", formatUrlPathFunc)
+
 	t.Views.AddGlobalFunc("map", mapFunc)
 	t.Views.AddGlobalFunc("put", putFunc)
 	t.Views.AddGlobalFunc("append", appendFunc)
@@ -30,6 +33,14 @@ func InitGlobalFunc(t *engine.TemplateEngine) {
 	t.Views.AddGlobalFunc("ceil", putFunc)
 	t.Views.AddGlobalFunc("floor", putFunc)
 
+}
+
+func formatUrlPathFunc(a jet.Arguments) reflect.Value {
+	if !a.Get(0).IsValid() {
+		return reflect.ValueOf("")
+	}
+	u, _ := url.Parse(a.Get(0).Interface().(string))
+	return reflect.ValueOf(u.Path)
 }
 
 // 把数字转换为int数组

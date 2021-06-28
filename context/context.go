@@ -1,7 +1,6 @@
 package context
 
 import (
-	"net/url"
 	"reflect"
 
 	"github.com/CloudyKit/jet/v6"
@@ -57,12 +56,8 @@ func handlerGetCtx(vars *jet.VarMap, c *gin.Context) {
 		return reflect.ValueOf(body[key])
 	})
 
-	vars.SetFunc("getUrlPath", func(a jet.Arguments) reflect.Value {
-		if !a.Get(0).IsValid() {
-			return reflect.ValueOf("")
-		}
-		u, _ := url.Parse(a.Get(0).Interface().(string))
-		return reflect.ValueOf(u.Path)
+	vars.SetFunc("getURL", func(a jet.Arguments) reflect.Value {
+		return reflect.ValueOf(c.Request.URL)
 	})
 }
 
