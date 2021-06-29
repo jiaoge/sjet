@@ -50,7 +50,7 @@ func InitTemplateContext(t *engine.TemplateEngine, c *gin.Context) *TemplateCont
 	vars := make(jet.VarMap)
 	handlerGetCtx(&vars, c)
 
-	var context map[string]interface{}
+	context := make(map[string]interface{})
 	handlerContext(&vars, &context)
 
 	ctxData := TemplateContext{
