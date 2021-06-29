@@ -151,7 +151,15 @@ func handlerGetCtx(vars *jet.VarMap, c *gin.Context) {
 func handlerContext(vars *jet.VarMap, context *map[string]interface{}) {
 	vars.SetFunc("context", func(a jet.Arguments) reflect.Value {
 		ctx := *context
+
+		if a.NumOfArguments() == 1 {
+			if val, ok := ctx[a.Get(0).String()]; ok {
+				return reflect.ValueOf(val)
+			}
+			return reflect.ValueOf("")
+		}
+
 		ctx[a.Get(0).String()] = a.Get(1).Interface()
-		return reflect.ValueOf(&ctx)
+		return reflect.ValueOf("")
 	})
 }
