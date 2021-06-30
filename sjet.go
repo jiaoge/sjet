@@ -1,12 +1,14 @@
 package sjet
 
 import (
+	"bytes"
 	"net/http"
 
 	"github.com/CloudyKit/jet/v6"
 	"github.com/gin-gonic/gin"
 	"github.com/shoppehub/sjet/context"
 	"github.com/shoppehub/sjet/engine"
+	"github.com/sirupsen/logrus"
 
 	"github.com/shoppehub/sjet/function"
 )
@@ -51,6 +53,33 @@ func RenderHTMLTemplate(eng *engine.TemplateEngine, c *gin.Context) {
 		return
 	}
 
+}
+
+func RenderMemTemplate(eng *engine.TemplateEngine, templateContext *context.TemplateContext, c *gin.Context, fnName string, fnTemplate string) (string, error) {
+
+	loader := *eng.Loader
+	if !loader.Exists(fnName) {
+		loader.Set("/"+fnName+".jet", fnTemplate)
+	}
+
+	view, err := eng.Views.GetTemplate(fnName)
+	// view, err := views.Parse(fnName, fun.Template)
+	if err != nil {
+		logrus.Error(err)
+		return "", err
+	}
+
+	for key, v := range customFunc {
+		templateContext.Vars.SetFunc(key, v(c))
+	}
+
+	var resp bytes.Buffer
+	err = view.Execute(&resp, *templateContext.Vars, nil)
+	if err != nil {
+		return "", err
+	}
+
+	return resp.String(), nil
 }
 
 type CustomFunc func(c *gin.Context) jet.Func
