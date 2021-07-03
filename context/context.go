@@ -1,7 +1,6 @@
 package context
 
 import (
-	"path"
 	"reflect"
 	"strconv"
 	"strings"
@@ -19,35 +18,27 @@ type TemplateContext struct {
 
 	Template *jet.Template
 
-	Module      string
-	Page        string
-	TemplName   string
 	TempatePath string
 }
 
 var TemplateRoot = "pages"
-
-func (ctx *TemplateContext) Namespace() string {
-	return strings.ReplaceAll(ctx.TempatePath, "/", "_")
-}
-
-func (ctx *TemplateContext) GetTemplateDir() string {
-	return strings.Join([]string{TemplateRoot, path.Dir((ctx.TempatePath))}, "/")
-}
 
 func (ctx *TemplateContext) FindTemplate(t *engine.TemplateEngine) error {
 	// templatePath := strings.Join([]string{TemplateRoot, ctx.Module, ctx.Page, ctx.TemplName}, "/")
 
 	var view *jet.Template
 	var err error
-	if view, err = t.Views.GetTemplate(ctx.TempatePath); err != nil {
+
+	if view, err = t.Views.GetTemplate(TemplateRoot + "/" + ctx.TempatePath); err != nil {
 		ctx.TempatePath += "/index"
-	}
-	if view, err = t.Views.GetTemplate(ctx.TempatePath); err != nil {
-		return err
+		if view, err = t.Views.GetTemplate(TemplateRoot + "/" + ctx.TempatePath); err != nil {
+			return err
+		}
 	}
 
 	ctx.Template = view
+	ctx.Vars.Set("namespace", strings.ReplaceAll(ctx.TempatePath, "/", "_"))
+
 	return nil
 }
 
@@ -66,7 +57,6 @@ func InitTemplateContext(t *engine.TemplateEngine, c *gin.Context) *TemplateCont
 	ctxData.TempatePath = strings.TrimPrefix(c.Request.URL.Path, "/")
 
 	// handlerTemplateFile(c, &ctxData)
-	vars.Set("namespace", ctxData.Namespace())
 
 	return &ctxData
 }
@@ -77,22 +67,22 @@ func handlerTemplateFile(c *gin.Context, ctx *TemplateContext) {
 	// paths := strings.Split(strings.TrimPrefix(c.Request.URL.Path, "/"), "/")
 	ctx.TempatePath = strings.TrimPrefix(c.Request.URL.Path, "/")
 
-	module := c.Params.ByName("module")
-	if module == "" {
-		module = "index"
-	}
-	page := c.Params.ByName("page")
-	if page == "" {
-		page = "index"
-	}
+	// module := c.Params.ByName("module")
+	// if module == "" {
+	// 	module = "index"
+	// }
+	// page := c.Params.ByName("page")
+	// if page == "" {
+	// 	page = "index"
+	// }
 
-	templ := c.Params.ByName("templ")
-	if templ == "" {
-		templ = "index"
-	}
-	ctx.Module = module
-	ctx.Page = page
-	ctx.TemplName = templ
+	// templ := c.Params.ByName("templ")
+	// if templ == "" {
+	// 	templ = "index"
+	// }
+	// ctx.Module = module
+	// ctx.Page = page
+	// ctx.TemplName = templ
 }
 
 func getParamInContext(key string, c *gin.Context) interface{} {
