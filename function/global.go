@@ -34,8 +34,8 @@ func InitGlobalFunc(t *engine.TemplateEngine) {
 	t.Views.AddGlobalFunc("m", mFunc)
 	t.Views.AddGlobalFunc("d", dFunc)
 
-	t.Views.AddGlobalFunc("ceil", putFunc)
-	t.Views.AddGlobalFunc("floor", putFunc)
+	t.Views.AddGlobalFunc("ceil", ceilFunc)
+	t.Views.AddGlobalFunc("floor", floorFunc)
 
 }
 
