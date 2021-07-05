@@ -5,9 +5,11 @@ import (
 	"math"
 	"net/url"
 	"reflect"
+	"strings"
 
 	"github.com/CloudyKit/jet/v6"
 	"github.com/shoppehub/sjet/engine"
+	"github.com/shopspring/decimal"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -36,7 +38,8 @@ func InitGlobalFunc(t *engine.TemplateEngine) {
 
 	t.Views.AddGlobalFunc("ceil", ceilFunc)
 	t.Views.AddGlobalFunc("floor", floorFunc)
-
+	t.Views.AddGlobalFunc("substring", substringFunc)
+	t.Views.AddGlobalFunc("indexOf", indexOfFunc)
 }
 
 func oidFunc(a jet.Arguments) reflect.Value {
@@ -155,6 +158,27 @@ func ceilFunc(a jet.Arguments) reflect.Value {
 func floorFunc(a jet.Arguments) reflect.Value {
 	value := a.Get(0).Interface()
 	return reflect.ValueOf(int(math.Floor(value.(float64))))
+}
+
+func substringFunc(a jet.Arguments) reflect.Value {
+	value := a.Get(0).Interface()
+
+	prefix := int32(a.Get(1).Interface().(float64))
+
+	if a.Get(0).Type().Kind() == reflect.Float64 {
+		num := value.(float64)
+		val, _ := decimal.NewFromFloat(num).Round(prefix).Float64()
+		return reflect.ValueOf(val)
+	} else {
+		str := value.(string)
+		return reflect.ValueOf(str[0:prefix])
+	}
+}
+
+func indexOfFunc(a jet.Arguments) reflect.Value {
+	value := a.Get(0).Interface().(string)
+	key := a.Get(1).Interface().(string)
+	return reflect.ValueOf(strings.Index(value, key))
 }
 
 func mFunc(a jet.Arguments) reflect.Value {
