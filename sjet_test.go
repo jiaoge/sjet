@@ -35,6 +35,14 @@ func SetupRouter(engine *engine.TemplateEngine) *gin.Engine {
 		{{substring(2.455,2)}}
 
 		{{substring("2.455",2)}}
+		{{ map1 := map("a",2)}}
+		{{map1 = append(map1,"b",2)}}
+
+		{{ sort := d("a",1)}}
+
+		{{sort = append(sort,"b",2)}}
+
+		{{sort}}
 
 		`
 

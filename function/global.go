@@ -122,10 +122,15 @@ func putFunc(a jet.Arguments) reflect.Value {
 
 func appendFunc(a jet.Arguments) reflect.Value {
 	name := a.Get(0).Type().Name()
+	kind := a.Get(0).Type().Kind()
+	fmt.Println(name, 2, a.Get(0).Type().Kind(), 1)
 
-	if a.Get(0).Type().Kind() == reflect.Slice {
-		m := a.Get(0).Interface().([]interface{})
-		m = append(m, a.Get(1).Interface())
+	if name == "D" {
+		m := a.Get(0).Interface().(bson.D)
+		e := bson.E{}
+		e.Key = a.Get(1).Interface().(string)
+		e.Value = a.Get(2).Interface()
+		m = append(m, e)
 		return reflect.ValueOf(m)
 	} else if name == "M" {
 		m := a.Get(0).Interface().(bson.M)
@@ -137,7 +142,7 @@ func appendFunc(a jet.Arguments) reflect.Value {
 			m[a.Get(1).String()] = val
 		}
 		return reflect.ValueOf(m)
-	} else {
+	} else if kind == reflect.Map {
 		m := a.Get(0).Interface().(map[string]interface{})
 		if m[a.Get(1).String()] != nil {
 			val := append(m[a.Get(1).String()].([]interface{}), a.Get(2).Interface())
@@ -147,7 +152,12 @@ func appendFunc(a jet.Arguments) reflect.Value {
 			m[a.Get(1).String()] = val
 		}
 		return reflect.ValueOf(m)
+	} else if kind == reflect.Slice {
+		m := a.Get(0).Interface().([]interface{})
+		m = append(m, a.Get(1).Interface())
+		return reflect.ValueOf(m)
 	}
+	return reflect.ValueOf("")
 }
 
 func ceilFunc(a jet.Arguments) reflect.Value {
