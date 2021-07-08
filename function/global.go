@@ -123,7 +123,6 @@ func putFunc(a jet.Arguments) reflect.Value {
 func appendFunc(a jet.Arguments) reflect.Value {
 	name := a.Get(0).Type().Name()
 	kind := a.Get(0).Type().Kind()
-	fmt.Println(name, 2, a.Get(0).Type().Kind(), 1)
 
 	if name == "D" {
 		m := a.Get(0).Interface().(bson.D)
