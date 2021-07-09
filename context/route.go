@@ -9,8 +9,7 @@ import (
 
 func handlerRoute(vars *jet.VarMap, c *gin.Context) {
 	vars.SetFunc("redirect", func(a jet.Arguments) reflect.Value {
-
-		c.Redirect(301, a.Get(0).Interface().(string))
-		panic(":::redirect")
+		rpath := a.Get(0).Interface().(string)
+		panic("redirect::::" + rpath)
 	})
 }
