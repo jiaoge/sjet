@@ -85,7 +85,7 @@ func handlerTemplateFile(c *gin.Context, ctx *TemplateContext) {
 	// ctx.TemplName = templ
 }
 
-func getParamInContext(key string, c *gin.Context) interface{} {
+func getParamInContext(key string, c *gin.Context, body *map[string]interface{}) interface{} {
 	if val, ok := c.GetQuery(key); ok {
 		return val
 	}
@@ -95,48 +95,52 @@ func getParamInContext(key string, c *gin.Context) interface{} {
 	if val, ok := c.Params.Get(key); ok {
 		return val
 	}
-	var body map[string]interface{}
-	if err := c.ShouldBindBodyWith(&body, binding.JSON); err == nil {
-		return body[key]
+	bd := *body
+	if value, ok := bd[key]; ok {
+		return value
 	}
 	return ""
 }
 
 func handlerGetCtx(vars *jet.VarMap, c *gin.Context) {
+
+	var body map[string]interface{}
+	c.ShouldBindBodyWith(&body, binding.JSON)
+
 	vars.SetFunc("getCtx", func(a jet.Arguments) reflect.Value {
 		key := a.Get(0).String()
-		return reflect.ValueOf(getParamInContext(key, c))
+		return reflect.ValueOf(getParamInContext(key, c, &body))
 	})
 
 	vars.SetFunc("getCtxForInt", func(a jet.Arguments) reflect.Value {
 		key := a.Get(0).String()
 
-		val := getParamInContext(key, c)
+		val := getParamInContext(key, c, &body)
 
 		if val == "" {
 			return reflect.ValueOf(0)
 		}
-		val, _ = strconv.ParseInt(c.Query("curPage"), 10, 64)
+		val, _ = strconv.ParseInt(val.(string), 10, 64)
 		return reflect.ValueOf(val)
 	})
 
 	vars.SetFunc("getCtxForFloat", func(a jet.Arguments) reflect.Value {
 		key := a.Get(0).String()
 
-		val := getParamInContext(key, c)
+		val := getParamInContext(key, c, &body)
 
 		if val == "" {
 			val = float64(0)
 			return reflect.ValueOf(val)
 		}
-		val, _ = strconv.ParseFloat(c.Query("curPage"), 64)
+		val, _ = strconv.ParseFloat(val.(string), 64)
 		return reflect.ValueOf(val)
 	})
 
 	vars.SetFunc("getCtxForBool", func(a jet.Arguments) reflect.Value {
 		key := a.Get(0).String()
 
-		val := getParamInContext(key, c)
+		val := getParamInContext(key, c, &body)
 
 		if val == "" {
 			return reflect.ValueOf(false)

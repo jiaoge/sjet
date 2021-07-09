@@ -40,6 +40,11 @@ func InitGlobalFunc(t *engine.TemplateEngine) {
 	t.Views.AddGlobalFunc("floor", floorFunc)
 	t.Views.AddGlobalFunc("substring", substringFunc)
 	t.Views.AddGlobalFunc("indexOf", indexOfFunc)
+
+	t.Views.AddGlobalFunc("md5", md5Func)
+	t.Views.AddGlobalFunc("base64", base64Func)
+
+	t.Views.AddGlobalFunc("base64Decode", base64DecodeFunc)
 }
 
 func oidFunc(a jet.Arguments) reflect.Value {
