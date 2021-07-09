@@ -10,6 +10,7 @@ import (
 	"github.com/CloudyKit/jet/v6"
 	"github.com/shoppehub/sjet/engine"
 	"github.com/shopspring/decimal"
+	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -43,8 +44,9 @@ func InitGlobalFunc(t *engine.TemplateEngine) {
 
 	t.Views.AddGlobalFunc("md5", md5Func)
 	t.Views.AddGlobalFunc("base64", base64Func)
-
 	t.Views.AddGlobalFunc("base64Decode", base64DecodeFunc)
+
+	t.Views.AddGlobalFunc("log", logFunc)
 }
 
 func oidFunc(a jet.Arguments) reflect.Value {
@@ -232,4 +234,20 @@ func arrayFunc(a jet.Arguments) reflect.Value {
 	}
 	m := reflect.ValueOf(p)
 	return m
+}
+
+func logFunc(a jet.Arguments) reflect.Value {
+
+	level := a.Get(0).Interface().(string)
+	logVal := a.Get(1).Interface()
+	switch level {
+	case "err":
+		logrus.Error(logVal)
+	case "info":
+		logrus.Info(logVal)
+	case "warn":
+		logrus.Warn(logVal)
+	}
+
+	return reflect.ValueOf("")
 }
