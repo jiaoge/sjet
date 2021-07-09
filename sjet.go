@@ -45,9 +45,6 @@ func RenderHTMLTemplate(eng *engine.TemplateEngine, c *gin.Context) {
 		templateContext.Vars.SetFunc(key, v(c))
 	}
 
-	c.Status(200)
-	c.Header("Content-Type", "text/html; charset=utf-8")
-
 	defer func() { // 必须要先声明defer，否则不能捕获到panic异常
 		if err := recover(); err != nil {
 			if err.(string) == ":::redirect" {
@@ -58,6 +55,9 @@ func RenderHTMLTemplate(eng *engine.TemplateEngine, c *gin.Context) {
 	}()
 
 	err = templateContext.Template.Execute(c.Writer, *templateContext.Vars, nil)
+	c.Status(200)
+	c.Header("Content-Type", "text/html; charset=utf-8")
+
 	if err != nil {
 		c.Writer.WriteString(err.Error())
 		return
