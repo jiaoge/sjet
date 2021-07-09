@@ -3,6 +3,7 @@ package sjet
 import (
 	"bytes"
 	"net/http"
+	"strings"
 
 	"github.com/CloudyKit/jet/v6"
 	"github.com/gin-gonic/gin"
@@ -47,14 +48,19 @@ func RenderHTMLTemplate(eng *engine.TemplateEngine, c *gin.Context) {
 
 	defer func() { // 必须要先声明defer，否则不能捕获到panic异常
 		if err := recover(); err != nil {
-			if err.(string) == ":::redirect" {
+
+			if strings.HasPrefix(err.(string), "redirect::::") {
+				p := strings.ReplaceAll(err.(string), "redirect::::", "")
+				c.Redirect(301, p)
 				return
 			}
 			logrus.Error(err)
 		}
 	}()
 
-	err = templateContext.Template.Execute(c.Writer, *templateContext.Vars, nil)
+	buf := bytes.NewBufferString("")
+
+	err = templateContext.Template.Execute(buf, *templateContext.Vars, nil)
 	c.Status(200)
 	c.Header("Content-Type", "text/html; charset=utf-8")
 
@@ -62,7 +68,7 @@ func RenderHTMLTemplate(eng *engine.TemplateEngine, c *gin.Context) {
 		c.Writer.WriteString(err.Error())
 		return
 	}
-
+	c.Writer.Write(buf.Bytes())
 }
 
 func RenderMemTemplate(eng *engine.TemplateEngine, templateContext *context.TemplateContext, c *gin.Context, fnName string, fnTemplate string) (string, error) {
