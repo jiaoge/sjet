@@ -50,6 +50,8 @@ func InitTemplateContext(t *engine.TemplateEngine, c *gin.Context) *TemplateCont
 	context := make(map[string]interface{})
 	handlerContext(&vars, &context)
 
+	handlerRoute(&vars, c)
+
 	ctxData := TemplateContext{
 		Vars:    &vars,
 		Context: &context,
