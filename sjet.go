@@ -54,6 +54,9 @@ func RenderHTMLTemplate(eng *engine.TemplateEngine, c *gin.Context) {
 				c.Redirect(301, p)
 				return
 			}
+			if strings.HasPrefix(err.(string), "exit::::") {
+				return
+			}
 			logrus.Error(err)
 		}
 	}()
@@ -89,6 +92,14 @@ func RenderMemTemplate(eng *engine.TemplateEngine, templateContext *context.Temp
 		templateContext.Vars.SetFunc(key, v(c))
 	}
 
+	defer func() { // 必须要先声明defer，否则不能捕获到panic异常
+		if err := recover(); err != nil {
+			if strings.HasPrefix(err.(string), "exit::::") {
+				return
+			}
+			logrus.Error(err)
+		}
+	}()
 	var resp bytes.Buffer
 	err = view.Execute(&resp, *templateContext.Vars, nil)
 	if err != nil {

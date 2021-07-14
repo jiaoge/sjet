@@ -47,6 +47,8 @@ func InitGlobalFunc(t *engine.TemplateEngine) {
 	t.Views.AddGlobalFunc("base64Decode", base64DecodeFunc)
 
 	t.Views.AddGlobalFunc("log", logFunc)
+
+	t.Views.AddGlobalFunc("exit", exitFunc)
 }
 
 func oidFunc(a jet.Arguments) reflect.Value {
@@ -250,4 +252,8 @@ func logFunc(a jet.Arguments) reflect.Value {
 	}
 
 	return reflect.ValueOf("")
+}
+
+func exitFunc(a jet.Arguments) reflect.Value {
+	panic("exit::::")
 }

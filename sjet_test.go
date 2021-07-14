@@ -4,16 +4,40 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"testing"
 
+	"github.com/CloudyKit/jet/v6"
 	"github.com/gin-gonic/gin"
 	"github.com/shoppehub/conf"
 	"github.com/shoppehub/sjet/context"
 	"github.com/shoppehub/sjet/engine"
 )
 
+type Demo struct {
+	Name string
+	Pwd  string
+}
+
+func (d *Demo) GetName() string {
+	return d.Name
+}
+
 func TestInt(t *testing.T) {
 	conf.Init("")
+
+	RegCustomFunc("dd", func(c *gin.Context) jet.Func {
+
+		return func(a jet.Arguments) reflect.Value {
+			fmt.Println(a.Get(0).Type().Kind().String())
+
+			demo := Demo{
+				Name: "123",
+			}
+
+			return reflect.ValueOf(&demo)
+		}
+	})
 
 	engine := CreateWithMem()
 
@@ -31,22 +55,16 @@ func SetupRouter(engine *engine.TemplateEngine) *gin.Engine {
 		templateContext := context.InitTemplateContext(engine, c)
 
 		template := `
-
-		{{substring(2.455,2)}}
-
-		{{substring("2.455",2)}}
-		{{ map1 := map("a",2)}}
-		{{map1 = append(map1,"b",2)}}
-
-		{{ sort := d("a",1)}}
-
-		{{sort = append(sort,"b",2)}}
-
-		{{sort}}
-
+		{{dd(1).GetName()}}
+		{{context("a","11")}}
+		{{exit() }}
+		{{context("a","22")}}
+		as
 		`
 
 		result, _ := RenderMemTemplate(engine, templateContext, c, "demo", template)
+
+		fmt.Println(*templateContext.Context)
 
 		c.JSON(http.StatusOK, gin.H{
 			"result": result,

@@ -65,26 +65,7 @@ func InitTemplateContext(t *engine.TemplateEngine, c *gin.Context) *TemplateCont
 
 // 解析模板路径 /:module/:page/:templ
 func handlerTemplateFile(c *gin.Context, ctx *TemplateContext) {
-
-	// paths := strings.Split(strings.TrimPrefix(c.Request.URL.Path, "/"), "/")
 	ctx.TempatePath = strings.TrimPrefix(c.Request.URL.Path, "/")
-
-	// module := c.Params.ByName("module")
-	// if module == "" {
-	// 	module = "index"
-	// }
-	// page := c.Params.ByName("page")
-	// if page == "" {
-	// 	page = "index"
-	// }
-
-	// templ := c.Params.ByName("templ")
-	// if templ == "" {
-	// 	templ = "index"
-	// }
-	// ctx.Module = module
-	// ctx.Page = page
-	// ctx.TemplName = templ
 }
 
 func getParamInContext(key string, c *gin.Context, body *map[string]interface{}) interface{} {
@@ -106,8 +87,10 @@ func getParamInContext(key string, c *gin.Context, body *map[string]interface{})
 
 func handlerGetCtx(vars *jet.VarMap, c *gin.Context) {
 
-	var body map[string]interface{}
-	c.ShouldBindBodyWith(&body, binding.JSON)
+	body := make(map[string]interface{})
+	if c.Request.Body != nil {
+		c.ShouldBindBodyWith(&body, binding.JSON)
+	}
 
 	vars.SetFunc("getCtx", func(a jet.Arguments) reflect.Value {
 		key := a.Get(0).String()
@@ -164,10 +147,11 @@ func handlerContext(vars *jet.VarMap, context *map[string]interface{}) {
 			if val, ok := ctx[a.Get(0).String()]; ok {
 				return reflect.ValueOf(val)
 			}
-			return reflect.ValueOf("")
+			return reflect.Value{}
 		}
 
 		ctx[a.Get(0).String()] = a.Get(1).Interface()
-		return reflect.ValueOf("")
+		*context = ctx
+		return reflect.Value{}
 	})
 }
