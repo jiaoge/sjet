@@ -144,23 +144,17 @@ func appendFunc(a jet.Arguments) reflect.Value {
 		return reflect.ValueOf(m)
 	} else if name == "M" {
 		m := a.Get(0).Interface().(bson.M)
-		if m[a.Get(1).String()] != nil {
-			val := append(m[a.Get(1).String()].([]bson.M), a.Get(2).Interface().(bson.M))
-			m[a.Get(1).String()] = val
-		} else {
-			val := []bson.M{a.Get(2).Interface().(bson.M)}
-			m[a.Get(1).String()] = val
-		}
+
+		val := []bson.M{a.Get(2).Interface().(bson.M)}
+		m[a.Get(1).String()] = val
+
 		return reflect.ValueOf(m)
 	} else if kind == reflect.Map {
 		m := a.Get(0).Interface().(map[string]interface{})
-		if m[a.Get(1).String()] != nil {
-			val := append(m[a.Get(1).String()].([]interface{}), a.Get(2).Interface())
-			m[a.Get(1).String()] = val
-		} else {
-			val := []interface{}{a.Get(2).Interface()}
-			m[a.Get(1).String()] = val
-		}
+
+		val := []interface{}{a.Get(2).Interface()}
+		m[a.Get(1).String()] = val
+
 		return reflect.ValueOf(m)
 	} else if kind == reflect.Slice {
 		m := a.Get(0).Interface().([]interface{})
