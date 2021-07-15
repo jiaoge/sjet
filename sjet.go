@@ -51,7 +51,7 @@ func RenderHTMLTemplate(eng *engine.TemplateEngine, c *gin.Context) {
 
 			if strings.HasPrefix(err.(string), "redirect::::") {
 				p := strings.ReplaceAll(err.(string), "redirect::::", "")
-				c.Redirect(301, p)
+				c.Redirect(302, p)
 				return
 			}
 			if strings.HasPrefix(err.(string), "exit::::") {
@@ -94,6 +94,11 @@ func RenderMemTemplate(eng *engine.TemplateEngine, templateContext *context.Temp
 
 	defer func() { // 必须要先声明defer，否则不能捕获到panic异常
 		if err := recover(); err != nil {
+			if strings.HasPrefix(err.(string), "redirect::::") {
+				p := strings.ReplaceAll(err.(string), "redirect::::", "")
+				c.Redirect(302, p)
+				return
+			}
 			if strings.HasPrefix(err.(string), "exit::::") {
 				return
 			}

@@ -92,6 +92,10 @@ func handlerGetCtx(vars *jet.VarMap, c *gin.Context) {
 		c.ShouldBindBodyWith(&body, binding.JSON)
 	}
 
+	vars.SetFunc("getBody", func(a jet.Arguments) reflect.Value {
+		return reflect.ValueOf(&body)
+	})
+
 	vars.SetFunc("getCtx", func(a jet.Arguments) reflect.Value {
 		key := a.Get(0).String()
 		return reflect.ValueOf(getParamInContext(key, c, &body))
