@@ -6,18 +6,23 @@ import (
 	"net/url"
 	"reflect"
 	"strconv"
-	"strings"
 
 	"github.com/CloudyKit/jet/v6"
 	"github.com/shoppehub/sjet/engine"
-	"github.com/shopspring/decimal"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+var globalFunc = make(map[string]jet.Func)
+
 // 初始化全局函数
 func InitGlobalFunc(t *engine.TemplateEngine) {
+
+	for k, v := range globalFunc {
+		t.Views.AddGlobalFunc(k, v)
+	}
+
 	// 把数字转换为int数组
 	t.Views.AddGlobalFunc("numArray", numArrayFunc)
 	// 支持把数据转换为字符串，比如 objectId
@@ -41,12 +46,6 @@ func InitGlobalFunc(t *engine.TemplateEngine) {
 	t.Views.AddGlobalFunc("parseInt", parseIntFunc)
 	t.Views.AddGlobalFunc("ceil", ceilFunc)
 	t.Views.AddGlobalFunc("floor", floorFunc)
-	t.Views.AddGlobalFunc("substring", substringFunc)
-	t.Views.AddGlobalFunc("indexOf", indexOfFunc)
-
-	t.Views.AddGlobalFunc("md5", md5Func)
-	t.Views.AddGlobalFunc("base64", base64Func)
-	t.Views.AddGlobalFunc("base64Decode", base64DecodeFunc)
 
 	t.Views.AddGlobalFunc("log", logFunc)
 
@@ -184,27 +183,6 @@ func ceilFunc(a jet.Arguments) reflect.Value {
 func floorFunc(a jet.Arguments) reflect.Value {
 	value := a.Get(0).Interface()
 	return reflect.ValueOf(int(math.Floor(value.(float64))))
-}
-
-func substringFunc(a jet.Arguments) reflect.Value {
-	value := a.Get(0).Interface()
-
-	prefix := int32(a.Get(1).Interface().(float64))
-
-	if a.Get(0).Type().Kind() == reflect.Float64 {
-		num := value.(float64)
-		val, _ := decimal.NewFromFloat(num).Round(prefix).Float64()
-		return reflect.ValueOf(val)
-	} else {
-		str := value.(string)
-		return reflect.ValueOf(str[0:prefix])
-	}
-}
-
-func indexOfFunc(a jet.Arguments) reflect.Value {
-	value := a.Get(0).Interface().(string)
-	key := a.Get(1).Interface().(string)
-	return reflect.ValueOf(strings.Index(value, key))
 }
 
 func mFunc(a jet.Arguments) reflect.Value {

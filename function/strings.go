@@ -5,10 +5,43 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"reflect"
+	"strings"
 
 	"github.com/CloudyKit/jet/v6"
+	"github.com/shopspring/decimal"
 	"github.com/sirupsen/logrus"
 )
+
+func init() {
+	globalFunc["md5"] = md5Func
+	globalFunc["base64"] = base64Func
+	globalFunc["base64Decode"] = base64DecodeFunc
+
+	globalFunc["substring"] = substringFunc
+	globalFunc["indexOf"] = indexOfFunc
+
+}
+
+func substringFunc(a jet.Arguments) reflect.Value {
+	value := a.Get(0).Interface()
+
+	prefix := int32(a.Get(1).Interface().(float64))
+
+	if a.Get(0).Type().Kind() == reflect.Float64 {
+		num := value.(float64)
+		val, _ := decimal.NewFromFloat(num).Round(prefix).Float64()
+		return reflect.ValueOf(val)
+	} else {
+		str := value.(string)
+		return reflect.ValueOf(str[0:prefix])
+	}
+}
+
+func indexOfFunc(a jet.Arguments) reflect.Value {
+	value := a.Get(0).Interface().(string)
+	key := a.Get(1).Interface().(string)
+	return reflect.ValueOf(strings.Index(value, key))
+}
 
 func md5Func(a jet.Arguments) reflect.Value {
 	str := a.Get(0).Interface().(string)
