@@ -40,7 +40,7 @@ func substringFunc(a jet.Arguments) reflect.Value {
 			start = int32(a.Get(1).Interface().(float64))
 			end = int32(a.Get(1).Interface().(float64))
 		}
-		return reflect.ValueOf(strs[start:end])
+		return reflect.ValueOf(string(strs[start:end]))
 	}
 }
 
