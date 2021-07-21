@@ -82,6 +82,9 @@ func getParamInContext(key string, c *gin.Context, body *map[string]interface{})
 	if value, ok := bd[key]; ok {
 		return value
 	}
+	if value, ok := c.Get(key); ok {
+		return value
+	}
 	return ""
 }
 
