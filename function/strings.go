@@ -25,15 +25,22 @@ func init() {
 func substringFunc(a jet.Arguments) reflect.Value {
 	value := a.Get(0).Interface()
 
-	prefix := int32(a.Get(1).Interface().(float64))
-
 	if a.Get(0).Type().Kind() == reflect.Float64 {
 		num := value.(float64)
+		prefix := int32(a.Get(1).Interface().(float64))
 		val, _ := decimal.NewFromFloat(num).Round(prefix).Float64()
 		return reflect.ValueOf(val)
 	} else {
 		str := value.(string)
-		return reflect.ValueOf(str[0:prefix])
+
+		strs := []rune(str)
+		start := int32(0)
+		end := int32(a.Get(1).Interface().(float64))
+		if a.NumOfArguments() == 3 {
+			start = int32(a.Get(1).Interface().(float64))
+			end = int32(a.Get(1).Interface().(float64))
+		}
+		return reflect.ValueOf(strs[start:end])
 	}
 }
 
