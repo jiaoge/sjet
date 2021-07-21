@@ -20,6 +20,8 @@ func init() {
 	globalFunc["substring"] = substringFunc
 	globalFunc["indexOf"] = indexOfFunc
 
+	globalFunc["lenStr"] = lenStrFunc
+
 }
 
 func substringFunc(a jet.Arguments) reflect.Value {
@@ -42,6 +44,12 @@ func substringFunc(a jet.Arguments) reflect.Value {
 		}
 		return reflect.ValueOf(string(strs[start:end]))
 	}
+}
+
+func lenStrFunc(a jet.Arguments) reflect.Value {
+	value := a.Get(0).Interface()
+	strs := []rune(value.(string))
+	return reflect.ValueOf(len(strs))
 }
 
 func indexOfFunc(a jet.Arguments) reflect.Value {
