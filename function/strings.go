@@ -40,7 +40,7 @@ func substringFunc(a jet.Arguments) reflect.Value {
 		end := int32(a.Get(1).Interface().(float64))
 		if a.NumOfArguments() == 3 {
 			start = int32(a.Get(1).Interface().(float64))
-			end = int32(a.Get(1).Interface().(float64))
+			end = int32(a.Get(2).Interface().(float64))
 		}
 		return reflect.ValueOf(string(strs[start:end]))
 	}
@@ -49,7 +49,7 @@ func substringFunc(a jet.Arguments) reflect.Value {
 func lenStrFunc(a jet.Arguments) reflect.Value {
 	value := a.Get(0).Interface()
 	strs := []rune(value.(string))
-	return reflect.ValueOf(len(strs))
+	return reflect.ValueOf(float64(len(strs)))
 }
 
 func indexOfFunc(a jet.Arguments) reflect.Value {
