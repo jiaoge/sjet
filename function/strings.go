@@ -6,10 +6,12 @@ import (
 	"encoding/hex"
 	"reflect"
 	"strings"
+	"time"
 
 	"github.com/CloudyKit/jet/v6"
 	"github.com/shopspring/decimal"
 	"github.com/sirupsen/logrus"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func init() {
@@ -21,6 +23,8 @@ func init() {
 	globalFunc["indexOf"] = indexOfFunc
 
 	globalFunc["lenStr"] = lenStrFunc
+
+	globalFunc["formatTime"] = formatTimeFunc
 
 }
 
@@ -80,4 +84,17 @@ func base64DecodeFunc(a jet.Arguments) reflect.Value {
 		logrus.Error(err, str)
 	}
 	return reflect.ValueOf(sDec)
+}
+
+func formatTimeFunc(a jet.Arguments) reflect.Value {
+
+	f := a.Get(1).Interface().(string)
+	name := a.Get(0).Type().Name()
+
+	if name == "DateTime" {
+		str := a.Get(0).Interface().(primitive.DateTime)
+		return reflect.ValueOf(time.Unix(int64(str), 0).Format(f))
+	}
+	str := a.Get(0).Interface().(time.Time)
+	return reflect.ValueOf(str.Format(f))
 }
