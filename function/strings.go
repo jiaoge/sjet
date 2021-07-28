@@ -93,7 +93,7 @@ func formatTimeFunc(a jet.Arguments) reflect.Value {
 
 	if name == "DateTime" {
 		str := a.Get(0).Interface().(primitive.DateTime)
-		return reflect.ValueOf(time.Unix(int64(str), 0).Format(f))
+		return reflect.ValueOf(str.Time().Format(f))
 	}
 	str := a.Get(0).Interface().(time.Time)
 	return reflect.ValueOf(str.Format(f))
