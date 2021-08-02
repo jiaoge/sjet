@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"encoding/base64"
 	"encoding/hex"
+	"encoding/json"
 	"reflect"
 	"strings"
 	"time"
@@ -25,6 +26,8 @@ func init() {
 	globalFunc["lenStr"] = lenStrFunc
 
 	globalFunc["formatTime"] = formatTimeFunc
+
+	globalFunc["writeJson"] = writeJsonFunc
 
 }
 
@@ -97,4 +100,9 @@ func formatTimeFunc(a jet.Arguments) reflect.Value {
 	}
 	str := a.Get(0).Interface().(time.Time)
 	return reflect.ValueOf(str.Format(f))
+}
+
+func writeJsonFunc(a jet.Arguments) reflect.Value {
+	st, _ := json.Marshal(a.Get(0).Interface())
+	return reflect.ValueOf(string(st))
 }
