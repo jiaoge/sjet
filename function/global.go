@@ -1,7 +1,6 @@
 package function
 
 import (
-	"fmt"
 	"math"
 	"net/url"
 	"reflect"
@@ -26,7 +25,6 @@ func InitGlobalFunc(t *engine.TemplateEngine) {
 	// 把数字转换为int数组
 	t.Views.AddGlobalFunc("numArray", numArrayFunc)
 	// 支持把数据转换为字符串，比如 objectId
-	t.Views.AddGlobalFunc("string", stringFunc)
 	t.Views.AddGlobalFunc("oid", oidFunc)
 
 	t.Views.AddGlobalFunc("formatUrlPath", formatUrlPathFunc)
@@ -84,24 +82,6 @@ func numArrayFunc(a jet.Arguments) reflect.Value {
 		nums[i] = int64(i + 1)
 	}
 	return reflect.ValueOf(nums)
-}
-
-func stringFunc(a jet.Arguments) reflect.Value {
-	if !a.Get(0).IsValid() {
-		return reflect.ValueOf("")
-	}
-
-	name := a.Get(0).Type().Name()
-
-	switch name {
-	case "ObjectID":
-		oid := a.Get(0).Interface().(primitive.ObjectID)
-		return reflect.ValueOf(oid.Hex())
-	case "int":
-		return reflect.ValueOf(fmt.Sprint(a.Get(0).Interface().(int)))
-	}
-
-	return reflect.ValueOf(a.Get(0).Interface())
 }
 
 func mapFunc(a jet.Arguments) reflect.Value {

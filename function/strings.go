@@ -5,7 +5,9 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"reflect"
+	"strconv"
 	"strings"
 	"time"
 
@@ -16,6 +18,7 @@ import (
 )
 
 func init() {
+	globalFunc["string"] = stringFunc
 	globalFunc["md5"] = md5Func
 	globalFunc["base64"] = base64Func
 	globalFunc["base64Decode"] = base64DecodeFunc
@@ -29,6 +32,43 @@ func init() {
 
 	globalFunc["writeJson"] = writeJsonFunc
 
+}
+
+func stringFunc(a jet.Arguments) reflect.Value {
+
+	if !a.Get(0).IsValid() {
+		return reflect.ValueOf("")
+	}
+
+	value := a.Get(0).Interface()
+	kind := a.Get(0).Type().Kind()
+
+	if kind == reflect.Float64 {
+		num := value.(float64)
+		return reflect.ValueOf(strconv.FormatFloat(num, 'f', -1, 64))
+	}
+	if kind == reflect.Bool {
+		num := value.(bool)
+		return reflect.ValueOf(strconv.FormatBool(num))
+	}
+	if kind == reflect.Int64 {
+		num := value.(int64)
+		return reflect.ValueOf(strconv.FormatInt(num, 10))
+	}
+	if kind == reflect.Int {
+		num := value.(int)
+		return reflect.ValueOf(fmt.Sprint(num))
+	}
+
+	name := a.Get(0).Type().Name()
+
+	switch name {
+	case "ObjectID":
+		oid := a.Get(0).Interface().(primitive.ObjectID)
+		return reflect.ValueOf(oid.Hex())
+	}
+
+	return reflect.ValueOf(a.Get(0).Interface())
 }
 
 func substringFunc(a jet.Arguments) reflect.Value {
