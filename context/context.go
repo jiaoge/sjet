@@ -30,7 +30,12 @@ func (ctx *TemplateContext) FindTemplate(t *engine.TemplateEngine) error {
 	var err error
 
 	if view, err = t.Views.GetTemplate(TemplateRoot + "/" + ctx.TempatePath); err != nil {
-		ctx.TempatePath += "/index"
+		if strings.HasSuffix(ctx.TempatePath, "/") {
+			ctx.TempatePath += "index"
+		} else {
+			ctx.TempatePath += "/index"
+		}
+
 		if view, err = t.Views.GetTemplate(TemplateRoot + "/" + ctx.TempatePath); err != nil {
 			return err
 		}
