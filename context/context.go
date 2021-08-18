@@ -42,7 +42,8 @@ func (ctx *TemplateContext) FindTemplate(t *engine.TemplateEngine) error {
 	}
 
 	ctx.Template = view
-	ctx.Vars.Set("namespace", strings.ReplaceAll(ctx.TempatePath, "/", "_"))
+	templatePath := strings.TrimPrefix(ctx.TempatePath, "/")
+	ctx.Vars.Set("namespace", strings.ReplaceAll(templatePath, "/", "_"))
 
 	return nil
 }
